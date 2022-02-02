@@ -1,3 +1,6 @@
+const mysql = require("mysql2");
+const db = require("./db/connection");
+
 // Present user with options
 
 const nextActionQuestion = [
@@ -55,7 +58,7 @@ const addEmployeeQuestions = [
     {
         type: 'input',
         name: 'employeeManager',
-        message: 'Who is the new Employee\'s manager?'
+        message: 'Who is the new employees\'s manager?'
     }
 ];
 
