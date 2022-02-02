@@ -1,12 +1,20 @@
-const mysql = require("mysql2")
+const mysql = require('mysql2');
+const util = require('util');
 
-const connection = mysql.createConnection({
+const connection = mysql.createConnection(
+  {
     host: "localhost",
+    // Your username
     user: "root",
+    // Your password
     password: "password",
     database: "employees"
-});
+  }
+);
 
+connection.query = util.promisify( db.query );
+
+// Validate connection is working
 connection.connect(function (err) {
     if (err) {
         throw err;

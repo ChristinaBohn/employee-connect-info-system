@@ -1,8 +1,10 @@
-const mysql = require("mysql2");
-const db = require("./db/connection");
+const inquirer = require('inquirer');
+const mysql = require('mysql2');
+const db = require('./db/connection');
 
-// Present user with options
 
+
+ 
 const nextActionQuestion = [
     {
         type: 'list',
@@ -62,28 +64,74 @@ const addEmployeeQuestions = [
     }
 ];
 
+
+// Present user with options
+async function askForNextAction() {
+
+    const answers = await inquirer.prompt( nextActionQuestion )
+
+}
+
+
+
 // View all departments - READ - "SELECT * FROM table_name/departments";
+async function viewAllDepartments() {
+
+    const departments = await db.query('SELECT * FROM departments');
+
+    console.table(departments);
+    
+}
 
 // View all roles - READ - "SELECT * FROM roles";
+async function viewAllRoles() {
+
+    const roles = await db.query('SELECT * FROM roles');
+
+    console.table(roles);
+
+}
 
 // View all employees - READ - "SELECT * FROM employees";
-   
+async function viewAllEmployees() {
+    
     // Can use JOIN to add more info
+    const employees = await db.query('SELECT * FROM employees');
+
+    console.table(employees);
+
+}
 
 
 // Add a department - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
+async function addDepartment() {
+
+    const employees = await db.query('INSERT INTO departments (id, department_name) VALUES (${}, ${})');
+
+    console.table(employees);
+
+}
 
 // Add a role - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
-    
-    // SELECT the existing roles from the 'roles' table
+async function addRole() {
 
+    // SELECT the existing roles from the 'roles' table
+    
     // .map() the results from 'roles' to question data for inquirer (going to need the id)
     
     // THEN prompt the user for role info (inquirer)
-
+    
         // Store user's answers and INSERT them into the 'roles' table
 
-// Add an employee - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
+}
+    
 
+// Add an employee - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
+function addEmployee() {
+
+}
 
 // Update an employee
+function updateEmployee() {
+
+}
