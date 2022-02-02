@@ -8,11 +8,10 @@ const connection = mysql.createConnection(
     user: "root",
     // Your password
     password: "password",
-    database: "employees"
+    database: "employees_db"
   }
 );
 
-connection.query = util.promisify( db.query );
 
 // Validate connection is working
 connection.connect(function (err) {
