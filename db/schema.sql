@@ -4,26 +4,27 @@ CREATE DATABASE employees_db;
 USE employees_db;
 
 CREATE TABLE departments (
-  department_id INT NOT NULL,
-  department_name VARCHAR(30) NOT NULL,
+  id INT PRIMARY KEY NOT NULL,
+  department_name VARCHAR(30),
   PRIMARY KEY (id)
 );
 
 CREATE TABLE roles (
-  role_id INT NOT NULL,
-  job_title VARCHAR(30) NOT NULL,
-  department INT,
-  order_details TEXT,
-  FOREIGN KEY (instructor_id)
-  REFERENCES instructors(id)
-  ON DELETE SET NULL
+  id INT PRIMARY KEY NOT NULL,
+  title VARCHAR(30) NOT NULL,
+  salary DECIMAL,
+  department_id INT,
+  FOREIGN KEY (department_id)
+  REFERENCES departments(id)
+);
 
 CREATE TABLE employees (
-  role_id INT NOT NULL,
-  job_title VARCHAR(30) NOT NULL,
-  department INT,
-  order_details TEXT,
-  FOREIGN KEY (instructor_id)
-  REFERENCES instructors(id)
+  id INT PRIMARY KEY NOT NULL,
+  first_name VARCHAR(30),
+  last_name VARCHAR(30),
+  role_id INT,
+  manager_id INT,
+  FOREIGN KEY (role_id)
+  REFERENCES roles(id)
   ON DELETE SET NULL
 );
