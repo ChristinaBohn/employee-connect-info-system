@@ -2,11 +2,9 @@ const inquirer = require('inquirer');
 const { last } = require('lodash');
 const mysql = require('mysql2');
 const db = require('./db/connection');
-require('console.table')
+const cTable = require('console.table');
 
 
-
- 
 const nextActionQuestion = [
     {
         type: 'list',
@@ -16,7 +14,7 @@ const nextActionQuestion = [
     }
 ];
 
-const addDepartmentQuestions = [
+const addDepartmentQuestion = [
     {
         type: 'input',
         name: 'departmentName',
@@ -34,26 +32,19 @@ const addRoleQuestions = [
         type: 'input',
         name: 'roleSalary',
         message: 'What is the salary for this Role'
-    },
-    {
-        // Drop down choices for this question?
-        type: 'input',
-        name: 'roleDepartment',
-        message: 'Which Department is this Role in?'
     }
 ];
 
 const addEmployeeQuestions = [
-
     {
         type: 'input',
-        name: 'employeeRole',
-        message: 'What is the new Employee\'s Role?'
+        name: 'employeeFirstName',
+        message: 'What is the first name of the new Employee?'
     },
     {
         type: 'input',
-        name: 'employeeManager',
-        message: 'Who is the new employees\'s manager?'
+        name: 'employeeLastName',
+        message: 'What is the last name of the new Employee?'
     }
 ];
 
@@ -77,18 +68,21 @@ async function askForNextAction() {
         case 'Add Department':
             addDepartment();
             break;
+        case 'Add Role':
+            addRole();
+            break;
         case 'Add Employee':
             addEmployee();
             break;
-    
-    
+        case 'Exit Info System':
+            console.log('Goodbye!');
+            break;
     }
-
 }
 
 askForNextAction();
 
-// View all departments
+
 async function viewAllDepartments() {
     
     const departments = await db.promise().query('SELECT * FROM departments')
@@ -97,7 +91,6 @@ async function viewAllDepartments() {
     askForNextAction();
 }
 
-// View all roles
 async function viewAllRoles() {
 
     const roles = await db.promise().query('SELECT * FROM roles');
@@ -107,7 +100,6 @@ async function viewAllRoles() {
 
 }
 
-// View all employees
 async function viewAllEmployees() {
     
     // Can use JOIN to add more info
@@ -117,13 +109,11 @@ async function viewAllEmployees() {
     askForNextAction();
 }
 
-
-// Add a department
 async function addDepartment() {
 
-    const answers = await inquirer.prompt( addDepartmentQuestions );
+    const answer = await inquirer.prompt( addDepartmentQuestion );
 
-    let departmentName = answers.departmentName;
+    let departmentName = answer.departmentName;
     let newDepartment = {
         department_name: departmentName
     }
@@ -136,41 +126,53 @@ async function addDepartment() {
 
 }
 
-// Add a role - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
 async function addRole() {
 
-    // SELECT the existing roles from the 'roles' table
-    
-    // .map() the results from 'roles' to question data for inquirer (going to need the id)
-    
-    // THEN prompt the user for role info (inquirer)
-    
-        // Store user's answers and INSERT them into the 'roles' table
-        const role = await db.query('INSERT INTO roles (id, title, salary) VALUES (${}, ${}, ${})');
+    const answers  = await inquirer.prompt( addRoleQuestions );
 
-        console.table(role);
+    let roleName = answers.roleName;
+    let roleSalary = answers.roleSalary;
 
-}
-    
+    const departments = await db.promise().query('SELECT * FROM departments');
 
-// Add an employee
-async function addEmployee() {
+    let departmentChoices = departments[0].map(({id, department_name}) => ({
 
-    const name  = await inquirer.prompt([
+        name: `${department_name}`,
+        value: id
+
+    }));
+
+    const department = await inquirer.prompt([
         {
-            type: 'input',
-            name: 'employeeFirstName',
-            message: 'What is the first name of the new Employee?'
-        },
-        {
-            type: 'input',
-            name: 'employeeLastName',
-            message: 'What is the last name of the new Employee?'
+            type: 'list',
+            name: 'roleDepartment',
+            message: 'Which Department is this Role in?',
+            choices: departmentChoices
         }
     ]);
 
-    let firstName = name.employeeFirstName;
-    let lastName = name.employeeLastName;
+    let departmentId = department.roleDepartment;
+
+    let newRole = {
+        title: roleName,
+        salary: roleSalary,
+        department_id: departmentId
+    };
+
+    console.log(newRole)
+
+    const role = await db.promise().query('INSERT INTO roles SET ?', newRole);
+
+    viewAllRoles();
+
+}
+
+async function addEmployee() {
+
+    const answers  = await inquirer.prompt( addEmployeeQuestions );
+
+    let firstName = answers.employeeFirstName;
+    let lastName = answers.employeeLastName;
 
     const roles = await db.promise().query('SELECT * FROM roles');
 
@@ -195,6 +197,7 @@ async function addEmployee() {
     const managers = await db.promise().query('SELECT * FROM employees');
 
     let managerChoices = managers[0].map(({id, first_name, last_name}) => ({
+
         name: `${first_name} ${last_name}`,
         value: id
 
@@ -225,7 +228,7 @@ async function addEmployee() {
 }
 
 // Update an employee
-function updateEmployee() {
+async function updateEmployee() {
 
 
 
