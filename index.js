@@ -12,7 +12,7 @@ const nextActionQuestion = [
         type: 'list',
         name: 'nextQuestion',
         message: 'What would you like to do?',
-        choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role']
+        choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'Exit Info System']
     }
 ];
 
@@ -62,55 +62,77 @@ const addEmployeeQuestions = [
 async function askForNextAction() {
 
     const answers = await inquirer.prompt( nextActionQuestion )
-;    switch(answers.nextQuestion) {
+
+    switch(answers.nextQuestion) {
+
         case 'View All Departments':
             viewAllDepartments();
             break;
-        case 'Add Employee':
-            addEmployee();
+        case 'View All Roles':
+            viewAllRoles();
             break;
         case 'View All Employees':
             viewAllEmployees();
             break;
+        case 'Add Department':
+            addDepartment();
+            break;
+        case 'Add Employee':
+            addEmployee();
+            break;
+    
+    
     }
 
 }
 
 askForNextAction();
 
-// View all departments - READ - "SELECT * FROM table_name/departments";
+// View all departments
 async function viewAllDepartments() {
+    
     const departments = await db.promise().query('SELECT * FROM departments')
     console.table(departments[0])
+
     askForNextAction();
 }
 
-// View all roles - READ - "SELECT * FROM roles";
+// View all roles
 async function viewAllRoles() {
 
-    const roles = await db.query('SELECT * FROM roles');
+    const roles = await db.promise().query('SELECT * FROM roles');
+    console.table(roles[0]);
 
-    console.table(roles);
+    askForNextAction();
 
 }
 
-// View all employees - READ - "SELECT * FROM employees";
+// View all employees
 async function viewAllEmployees() {
     
     // Can use JOIN to add more info
     const employees = await db.promise().query('SELECT * FROM employees');
-
     console.table(employees[0]);
+
     askForNextAction();
 }
 
 
-// Add a department - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
+// Add a department
 async function addDepartment() {
 
-    const department = await db.query('INSERT INTO departments (id, department_name) VALUES (${}, ${})');
+    const answers = await inquirer.prompt( addDepartmentQuestions );
 
-    console.table(department);
+    let departmentName = answers.departmentName;
+    let newDepartment = {
+        department_name: departmentName
+    }
+
+    console.log(newDepartment)
+
+    const department = await db.promise().query('INSERT INTO departments SET ?', newDepartment);
+
+    viewAllDepartments();
 
 }
 
@@ -131,8 +153,9 @@ async function addRole() {
 }
     
 
-// Add an employee - CREATE - "INSERT INTO table_name (col1, col2) VALUES (val1, val2)"
+// Add an employee
 async function addEmployee() {
+
     const name  = await inquirer.prompt([
         {
             type: 'input',
@@ -145,13 +168,19 @@ async function addEmployee() {
             message: 'What is the last name of the new Employee?'
         }
     ]);
+
     let firstName = name.employeeFirstName;
     let lastName = name.employeeLastName;
+
     const roles = await db.promise().query('SELECT * FROM roles');
+
     let roleChoices = roles[0].map(({id, title}) => ({
+
         name: `${title}`,
         value: id
+
     }));
+
     const employeeRole = await inquirer.prompt([
         {
             type: 'list',
@@ -160,11 +189,15 @@ async function addEmployee() {
             choices: roleChoices
         }
     ])
+
     let roleId = employeeRole.role;
+
     const managers = await db.promise().query('SELECT * FROM employees');
+
     let managerChoices = managers[0].map(({id, first_name, last_name}) => ({
         name: `${first_name} ${last_name}`,
         value: id
+
     }));
 
     const employeeManager = await inquirer.prompt([
@@ -187,6 +220,7 @@ async function addEmployee() {
     console.log(newEmployee)
 
     const employee = await db.promise().query('INSERT INTO employees SET ?', newEmployee);
+
     viewAllEmployees();
 }
 

@@ -12,6 +12,7 @@ const connection = mysql.createConnection(
   }
 );
 
+// connection.query = util.promisify( db.query );
 
 // Validate connection is working
 connection.connect(function (err) {
