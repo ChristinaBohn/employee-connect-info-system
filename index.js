@@ -74,6 +74,9 @@ async function askForNextAction() {
         case 'Add Employee':
             addEmployee();
             break;
+        case 'Update Employee':
+            updateEmployee();
+            break;
         case 'Exit Info System':
             console.log('Goodbye!');
             break;
@@ -229,7 +232,41 @@ async function addEmployee() {
 
 // Update an employee
 async function updateEmployee() {
+    
+    const employees = await db.promise().query('SELECT * FROM employees');
 
+    let employeeChoices = employees[0].map(({id, first_name, last_name}) => ({
 
+        name: `${first_name} ${last_name}`,
+        value: id
+
+    }));
+    
+    const employeeToUpdate = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employees',
+            message: "Which employee would you like to update?",
+            choices: employeeChoices
+        }
+    ])
+
+    const roles = await db.promise().query('SELECT * FROM roles');
+
+    let newRoleChoices = roles[0].map(({id, title}) => ({
+
+        name: `${title}`,
+        value: id
+
+    }));
+    
+    const updatedRole = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'newRole',
+            message: "Which new role should be added for this employee?",
+            choices: newRoleChoices
+        }
+    ])
 
 }
