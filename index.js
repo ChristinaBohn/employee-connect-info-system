@@ -138,6 +138,7 @@ async function addRole() {
 
     const departments = await db.promise().query('SELECT * FROM departments');
 
+    // User chooses which department the new Role belongs in
     let departmentChoices = departments[0].map(({id, department_name}) => ({
 
         name: `${department_name}`,
@@ -177,6 +178,7 @@ async function addEmployee() {
     let firstName = answers.employeeFirstName;
     let lastName = answers.employeeLastName;
 
+    // User chooses which role the new Employee is in
     const roles = await db.promise().query('SELECT * FROM roles');
 
     let roleChoices = roles[0].map(({id, title}) => ({
@@ -193,10 +195,11 @@ async function addEmployee() {
             message: "What is the new employee's role?",
             choices: roleChoices
         }
-    ])
+    ]);
 
     let roleId = employeeRole.role;
 
+    // User chooses who the new Employee's manager is
     const managers = await db.promise().query('SELECT * FROM employees');
 
     let managerChoices = managers[0].map(({id, first_name, last_name}) => ({
@@ -213,7 +216,7 @@ async function addEmployee() {
             message: "Who is the new employee's manager?",
             choices: managerChoices
         }
-    ])
+    ]);
 
     let managerId = employeeManager.manager;
     let newEmployee = {
@@ -230,9 +233,9 @@ async function addEmployee() {
     viewAllEmployees();
 }
 
-// Update an employee
 async function updateEmployee() {
     
+    // User chooses which employee to update
     const employees = await db.promise().query('SELECT * FROM employees');
 
     let employeeChoices = employees[0].map(({id, first_name, last_name}) => ({
@@ -242,15 +245,19 @@ async function updateEmployee() {
 
     }));
     
-    const employeeToUpdate = await inquirer.prompt([
+    const employeeUpdateChoice = await inquirer.prompt([
         {
             type: 'list',
             name: 'employees',
             message: "Which employee would you like to update?",
             choices: employeeChoices
         }
-    ])
+    ]);
+    console.log(employeeChoices)
 
+    let employeeIdToUpdate = employeeUpdateChoice.employees;
+
+    // User chooses which new role this employee will have
     const roles = await db.promise().query('SELECT * FROM roles');
 
     let newRoleChoices = roles[0].map(({id, title}) => ({
@@ -260,13 +267,18 @@ async function updateEmployee() {
 
     }));
     
-    const updatedRole = await inquirer.prompt([
+    const updatedRoleChoice = await inquirer.prompt([
         {
             type: 'list',
             name: 'newRole',
             message: "Which new role should be added for this employee?",
             choices: newRoleChoices
         }
-    ])
+    ]);
 
+    let updatedRoleId = updatedRoleChoice.newRole;
+
+    const updatedEmployee = await db.promise().query('UPDATE employees SET roleId = ? WHERE id = ?', [updatedRoleId, employeeIdToUpdate]);
+
+    viewAllEmployees();
 }
