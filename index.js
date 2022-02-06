@@ -74,7 +74,7 @@ async function askForNextAction() {
         case 'Add Employee':
             addEmployee();
             break;
-        case 'Update Employee':
+        case 'Update Employee Role':
             updateEmployee();
             break;
         case 'Exit Info System':
@@ -88,16 +88,16 @@ askForNextAction();
 
 async function viewAllDepartments() {
     
-    const departments = await db.promise().query('SELECT * FROM departments')
-    console.table(departments[0])
+    const departments = await db.query('SELECT * FROM departments');
+    console.table(departments);
 
     askForNextAction();
 }
 
 async function viewAllRoles() {
 
-    const roles = await db.promise().query('SELECT * FROM roles');
-    console.table(roles[0]);
+    const roles = await db.query('SELECT * FROM roles');
+    console.table(roles);
 
     askForNextAction();
 
@@ -106,8 +106,8 @@ async function viewAllRoles() {
 async function viewAllEmployees() {
     
     // Can use JOIN to add more info
-    const employees = await db.promise().query('SELECT * FROM employees');
-    console.table(employees[0]);
+    const employees = await db.query('SELECT * FROM employees');
+    console.table(employees);
 
     askForNextAction();
 }
@@ -123,7 +123,7 @@ async function addDepartment() {
 
     console.log(newDepartment)
 
-    const department = await db.promise().query('INSERT INTO departments SET ?', newDepartment);
+    const department = await db.query('INSERT INTO departments SET ?', newDepartment);
 
     viewAllDepartments();
 
@@ -136,10 +136,10 @@ async function addRole() {
     let roleName = answers.roleName;
     let roleSalary = answers.roleSalary;
 
-    const departments = await db.promise().query('SELECT * FROM departments');
+    const departments = await db.query('SELECT * FROM departments');
 
     // User chooses which department the new Role belongs in
-    let departmentChoices = departments[0].map(({id, department_name}) => ({
+    let departmentChoices = departments.map(({id, department_name}) => ({
 
         name: `${department_name}`,
         value: id
@@ -165,7 +165,7 @@ async function addRole() {
 
     console.log(newRole)
 
-    const role = await db.promise().query('INSERT INTO roles SET ?', newRole);
+    const role = await db.query('INSERT INTO roles SET ?', newRole);
 
     viewAllRoles();
 
@@ -179,9 +179,9 @@ async function addEmployee() {
     let lastName = answers.employeeLastName;
 
     // User chooses which role the new Employee is in
-    const roles = await db.promise().query('SELECT * FROM roles');
+    const roles = await db.query('SELECT * FROM roles');
 
-    let roleChoices = roles[0].map(({id, title}) => ({
+    let roleChoices = roles.map(({id, title}) => ({
 
         name: `${title}`,
         value: id
@@ -200,9 +200,9 @@ async function addEmployee() {
     let roleId = employeeRole.role;
 
     // User chooses who the new Employee's manager is
-    const managers = await db.promise().query('SELECT * FROM employees');
+    const managers = await db.query('SELECT * FROM employees');
 
-    let managerChoices = managers[0].map(({id, first_name, last_name}) => ({
+    let managerChoices = managers.map(({id, first_name, last_name}) => ({
 
         name: `${first_name} ${last_name}`,
         value: id
@@ -228,7 +228,7 @@ async function addEmployee() {
 
     console.log(newEmployee)
 
-    const employee = await db.promise().query('INSERT INTO employees SET ?', newEmployee);
+    const employee = await db.query('INSERT INTO employees SET ?', newEmployee);
 
     viewAllEmployees();
 }
@@ -236,9 +236,9 @@ async function addEmployee() {
 async function updateEmployee() {
     
     // User chooses which employee to update
-    const employees = await db.promise().query('SELECT * FROM employees');
+    const employees = await db.query('SELECT * FROM employees');
 
-    let employeeChoices = employees[0].map(({id, first_name, last_name}) => ({
+    let employeeChoices = employees.map(({id, first_name, last_name}) => ({
 
         name: `${first_name} ${last_name}`,
         value: id
@@ -258,9 +258,9 @@ async function updateEmployee() {
     let employeeIdToUpdate = employeeUpdateChoice.employees;
 
     // User chooses which new role this employee will have
-    const roles = await db.promise().query('SELECT * FROM roles');
+    const roles = await db.query('SELECT * FROM roles');
 
-    let newRoleChoices = roles[0].map(({id, title}) => ({
+    let newRoleChoices = roles.map(({id, title}) => ({
 
         name: `${title}`,
         value: id
@@ -278,7 +278,7 @@ async function updateEmployee() {
 
     let updatedRoleId = updatedRoleChoice.newRole;
 
-    const updatedEmployee = await db.promise().query('UPDATE employees SET roleId = ? WHERE id = ?', [updatedRoleId, employeeIdToUpdate]);
+    const updatedEmployee = await db.query('UPDATE employees SET role_id = ? WHERE id = ?', [updatedRoleId, employeeIdToUpdate]);
 
     viewAllEmployees();
 }
